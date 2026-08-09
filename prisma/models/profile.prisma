@@ -1,0 +1,21 @@
+enum EProfileType {
+  INDIVIDUAL
+}
+
+model Profile {
+  id         String      @id @default(uuid())
+  accountId  String
+  account    Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  type       EProfileType @default(INDIVIDUAL)
+  name       String
+  avatarUrl  String?
+  trustScore Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  addresses  Address[]
+  posts      Post[]
+  comments   Comment[]
+
+  @@unique([accountId, type])
+}
