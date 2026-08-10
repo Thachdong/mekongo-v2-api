@@ -9,12 +9,6 @@ export interface AccountRepositoryPort {
 
   findById(id: string): Promise<Account | null>;
 
-  create(data: {
-    loginType: TLoginType;
-    identifier: string;
-    passwordHash: string;
-  }): Promise<Account>;
-
   save(account: Account): Promise<void>;
 }
 
