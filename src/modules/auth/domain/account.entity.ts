@@ -10,7 +10,7 @@ export class Account {
     private _passwordHash: string,
     private _status: TAccountStatus,
     readonly createdAt: Date,
-    readonly updaedAt: Date,
+    readonly updatedAt: Date,
   ) {}
 
   getPasswordHash(): string {
@@ -31,5 +31,9 @@ export class Account {
 
   isLoginAllowed(): boolean {
     return this._status === 'ACTIVE';
+  }
+
+  changePassword(newPasswordHash: string): void {
+    this._passwordHash = newPasswordHash;
   }
 }

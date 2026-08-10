@@ -93,4 +93,10 @@ export class OtpRequest {
       now < this._resetTokenExpiresAt
     );
   }
+
+  /** Gọi sau khi resetToken đã dùng thành công — chống replay trong lúc còn hạn TTL. */
+  invalidateResetToken(): void {
+    this._resetTokenHash = null;
+    this._resetTokenExpiresAt = null;
+  }
 }
