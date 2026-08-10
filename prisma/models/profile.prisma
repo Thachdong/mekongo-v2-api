@@ -7,7 +7,7 @@ model Profile {
   accountId  String
   account    Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
   type       EProfileType @default(INDIVIDUAL)
-  name       String
+  displayName String?
   avatarUrl  String?
   trustScore Int         @default(0)
   createdAt  DateTime    @default(now())
