@@ -1,0 +1,24 @@
+enum EOtpPurpose {
+    REGISTER
+    RESET_PASSWORD
+    CHANGE_PASSWORD
+}
+
+model OtpRequest {
+    id                  String      @id @default(uuid())
+    purpose             EOtpPurpose
+    accountId           String?
+    identifier          String?
+    codeHash            String
+    wrongAttempts       Int         @default(0)
+    resendAttempts      Int         @default(0)
+    consumeAt           DateTime?
+    blockedUntil        DateTime?
+    expiresAt           DateTime
+    resetTokenHash      String?
+    resetTokenExpiresAt DateTime?
+    createdAt           DateTime    @default(now())
+
+    @@index([accountId])
+    @@index([identifier])
+}

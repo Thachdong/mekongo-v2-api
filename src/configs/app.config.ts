@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
-export default registerAs('app', () => ({
+export const appConfig = registerAs('app', () => ({
   env: process.env.NODE_ENV ?? 'development',
   name: process.env.APP_NAME ?? 'mekongo-api',
   port: parseInt(process.env.PORT ?? '3000', 10),
