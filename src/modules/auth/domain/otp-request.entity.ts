@@ -31,6 +31,26 @@ export class OtpRequest {
     return this._resendAttempts;
   }
 
+  getWrongAttempts(): number {
+    return this._wrongAttempts;
+  }
+
+  getConsumedAt(): Date | null {
+    return this._consumedAt;
+  }
+
+  getExpiresAt(): Date {
+    return this._expiresAt;
+  }
+
+  getResetTokenHash(): string | null {
+    return this._resetTokenHash;
+  }
+
+  getResetTokenExpiresAt(): Date | null {
+    return this._resetTokenExpiresAt;
+  }
+
   isExpired(now = new Date()): boolean {
     return now > this._expiresAt;
   }
