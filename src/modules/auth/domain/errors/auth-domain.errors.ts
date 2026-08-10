@@ -50,6 +50,10 @@ export class OtpBlockedError extends DomainError {
   constructor(readonly retryAfter: Date) {
     super('Too many attempts, try again later');
   }
+
+  toPayload() {
+    return { retryAfter: this.retryAfter.toISOString() };
+  }
 }
 
 export class OtpNotFoundError extends DomainError {
@@ -65,6 +69,10 @@ export class OtpWrongCodeError extends DomainError {
   readonly httpStatus = HttpStatus.BAD_REQUEST;
   constructor(readonly wrongAttemptsRemaining: number) {
     super('Incorrect OTP code');
+  }
+
+  toPayload() {
+    return { wrongAttemptsRemaining: this.wrongAttemptsRemaining };
   }
 }
 

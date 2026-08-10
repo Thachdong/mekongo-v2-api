@@ -15,7 +15,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();
-    const { status, code, message } = this._resolve(exception);
+    const { status, code, message, extra } = this._resolve(exception);
 
     if (status >= 500) {
       this.logger.error(
@@ -23,7 +23,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       );
     }
 
-    response.status(status).json({ code, message });
+    response.status(status).json({ code, message, ...extra });
   }
 
   private _resolve(exception: unknown) {
@@ -32,6 +32,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status: exception.httpStatus,
         code: exception.code,
         message: exception.message,
+        extra: exception.toPayload(),
       };
     }
 
@@ -47,6 +48,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         status,
         code: HttpStatus[status] ?? 'ERROR',
         message: Array.isArray(message) ? message.join(', ') : message,
+        extra: {},
       };
     }
 
@@ -54,6 +56,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       code: 'INTERNAL_ERROR',
       message: 'Unexpected error',
+      extra: {},
     };
   }
 }

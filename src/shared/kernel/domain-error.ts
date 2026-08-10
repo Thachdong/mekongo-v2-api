@@ -6,4 +6,9 @@ export abstract class DomainError extends Error {
     super(msg);
     this.name = new.target.name;
   }
+
+  /** Field phụ ngoài {code, message} (vd retryAfter, wrongAttemptsRemaining) — override ở subclass cần trả thêm data. */
+  toPayload(): Record<string, unknown> {
+    return {};
+  }
 }
