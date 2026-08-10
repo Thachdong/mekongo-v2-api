@@ -12,7 +12,8 @@
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@configs/*": ["./src/configs/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@modules/*": ["./src/modules/*"],
+      "@generated/prisma/*": ["./prisma/src/generated/prisma/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

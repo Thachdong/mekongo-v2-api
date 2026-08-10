@@ -10,6 +10,8 @@ import {
   throttleConfig,
   websocketConfig,
 } from '@configs/index';
+import { AuthModule } from './modules/auth/auth.module';
+import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import {
         abortEarly: false,
       },
     }),
+    AuthModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
