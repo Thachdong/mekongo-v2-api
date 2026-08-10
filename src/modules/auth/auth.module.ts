@@ -30,8 +30,11 @@ import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.use-case';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
 
+import { AuthController } from './infrastructure/http/auth.controller';
+
 @Module({
   imports: [PassportModule, JwtModule.register({})],
+  controllers: [AuthController],
   providers: [
     { provide: ACCOUNT_REPOSITORY, useClass: PrismaAccountRepository },
     { provide: OTP_REQUEST_REPOSITORY, useClass: PrismaOtpRequestRepository },
