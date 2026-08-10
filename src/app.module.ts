@@ -9,6 +9,7 @@ import {
   jwtConfig,
   throttleConfig,
   websocketConfig,
+  otpConfig,
 } from '@configs/index';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
@@ -24,6 +25,7 @@ import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
         jwtConfig,
         throttleConfig,
         websocketConfig,
+        otpConfig,
       ],
       validationSchema,
       validationOptions: {
