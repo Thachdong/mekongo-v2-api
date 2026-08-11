@@ -9,3 +9,12 @@ export class AccountAlreadyActivatedError extends DomainError {
     super('Account is already activated');
   }
 }
+
+export class AccountNotFoundError extends DomainError {
+  readonly code = 'ACCOUNT_NOT_FOUND';
+  readonly httpStatus = HttpStatus.NOT_FOUND;
+
+  constructor() {
+    super('Account not found');
+  }
+}
