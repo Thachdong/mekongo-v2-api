@@ -8,6 +8,7 @@ model OtpRequest {
     id                  String      @id @default(uuid())
     purpose             EOtpPurpose
     accountId           String?
+    account             Account?    @relation(fields: [accountId], references: [id], onDelete: Cascade)
     identifier          String?
     codeHash            String
     wrongAttempts       Int         @default(0)

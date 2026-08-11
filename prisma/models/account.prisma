@@ -5,13 +5,14 @@ enum EAccountStatus {
 }
 
 model Account {
-  id           String    @id @default(uuid())
-  phone        String?   @unique
-  email        String?   @unique
-  passwordHash String
-  status       EAccountStatus    @default(ACTIVE)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  profiles     Profile[]
+  id            String         @id @default(uuid())
+  phone         String?        @unique
+  email         String?        @unique
+  passwordHash  String
+  status        EAccountStatus @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profiles      Profile[]
   refreshTokens RefreshToken[]
+  otpRequests    OtpRequest[]
 }
