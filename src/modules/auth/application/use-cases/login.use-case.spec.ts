@@ -1,11 +1,11 @@
 import { LoginUseCase } from './login.use-case';
-import { AccountRepositoryPort } from '../ports/account.repository.port';
-import { ProfileRepositoryPort } from '../ports/profile.repository.port';
+import { AccountRepositoryPort } from '@modules/account/application/ports/account.repository.port';
+import { ProfileRepositoryPort } from '@modules/profile/application/ports/profile.repository.port';
 import { RefreshTokenRepositoryPort } from '../ports/refresh-token.repository.port';
 import { PasswordHasherPort } from '../ports/password-hasher.port';
 import { TokenServicePort } from '../ports/token.service.port';
-import { Account } from '../../domain/account.entity';
-import { Profile } from '../../domain/profile.entity';
+import { Account } from '@modules/account/domain/account.entity';
+import { Profile } from '@modules/profile/domain/profile.entity';
 import {
   AccountNotFoundError,
   InvalidCredentialsError,

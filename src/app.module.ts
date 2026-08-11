@@ -13,6 +13,8 @@ import {
   otpConfig,
 } from '@configs/index';
 import { AuthModule } from './modules/auth/auth.module';
+import { AccountModule } from './modules/account/account.module';
+import { ProfileModule } from './modules/profile/profile.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/security/jwt-auth.guard';
 import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
 
@@ -34,6 +36,8 @@ import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
         abortEarly: false,
       },
     }),
+    AccountModule,
+    ProfileModule,
     AuthModule,
     PrismaModule,
   ],

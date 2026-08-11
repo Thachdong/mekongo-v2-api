@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
-} from '../ports/account.repository.port';
+} from '@modules/account/application/ports/account.repository.port';
 import {
   PROFILE_REPOSITORY,
   ProfileRepositoryPort,
-} from '../ports/profile.repository.port';
+} from '@modules/profile/application/ports/profile.repository.port';
 import {
   REFRESH_TOKEN_REPOSITORY,
   RefreshTokenRepositoryPort,

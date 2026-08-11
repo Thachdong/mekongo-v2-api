@@ -1,5 +1,5 @@
-import { Account } from '../../domain/account.entity';
-import { Profile, TProfileType } from '../../domain/profile.entity';
+import { Account } from '@modules/account/domain/account.entity';
+import { Profile, TProfileType } from '@modules/profile/domain/profile.entity';
 import { TLoginType } from '../../domain/value-objects/identifier.vo';
 
 export interface RegisterAddressInput {

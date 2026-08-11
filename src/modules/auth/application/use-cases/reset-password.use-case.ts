@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
-} from '../ports/account.repository.port';
+} from '@modules/account/application/ports/account.repository.port';
 import {
   OTP_REQUEST_REPOSITORY,
   OtpRequestRepositoryPort,

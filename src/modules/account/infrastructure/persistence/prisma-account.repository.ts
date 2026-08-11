@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@shared/infrastructure/prisma/prisma.service';
 import { AccountRepositoryPort } from '../../application/ports/account.repository.port';
-import { TLoginType } from '../../domain/value-objects/identifier.vo';
+import { TLoginType } from '../../domain/value-objects/login-type';
 import { Account } from '../../domain/account.entity';
 import { AccountMapper } from './account.mapper';
 

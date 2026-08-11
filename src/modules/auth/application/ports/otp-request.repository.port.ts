@@ -13,7 +13,9 @@ export interface OtpRequestRepositoryPort {
 
   findById(id: string): Promise<OtpRequest | null>;
 
-  /** Bản ghi OtpRequest gần nhất cùng purpose+account/identifier, BẤT KỂ trạng thái (kể cả đã consumed/expired) — dùng để carry-forward resendAttempts + biết đang blocked hay không trước khi tạo bản ghi mới. */
+  /** Bản ghi OtpRequest gần nhất cùng purpose+account/identifier,
+   * BẤT KỂ trạng thái (kể cả đã consumed/expired)
+   * — dùng để carry-forward resendAttempts + biết đang blocked hay không trước khi tạo bản ghi mới. */
   findLatestActive(params: {
     purpose: TOtpPurpose;
     accountId?: string;

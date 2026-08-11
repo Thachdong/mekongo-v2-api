@@ -1,4 +1,4 @@
-import { AccountAlreadyActivatedError } from './errors/auth-domain.errors';
+import { AccountAlreadyActivatedError } from './errors/account-domain.errors';
 
 export type TAccountStatus = 'ACTIVE' | 'BLOCKED' | 'PENDING_VERIFICATION';
 

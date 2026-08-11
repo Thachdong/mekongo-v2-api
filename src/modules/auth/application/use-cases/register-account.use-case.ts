@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
-} from '../ports/account.repository.port';
+} from '@modules/account/application/ports/account.repository.port';
 import {
   PASSWORD_HASHER,
   PasswordHasherPort,
@@ -17,7 +17,7 @@ import {
   TLoginType,
 } from '../../domain/value-objects/identifier.vo';
 import { Password } from '../../domain/value-objects/password.vo';
-import { TProfileType } from '../../domain/profile.entity';
+import { TProfileType } from '@modules/profile/domain/profile.entity';
 import { IdentifierTakenError } from '../../domain/errors/auth-domain.errors';
 import { RequestOtpUseCase } from './request-otp.use-case';
 

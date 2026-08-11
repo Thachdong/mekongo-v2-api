@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
-} from '../ports/account.repository.port';
+} from '@modules/account/application/ports/account.repository.port';
 import {
   Identifier,
   TLoginType,

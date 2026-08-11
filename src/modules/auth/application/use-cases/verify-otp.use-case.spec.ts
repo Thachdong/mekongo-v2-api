@@ -2,11 +2,11 @@ import { ConfigType } from '@nestjs/config';
 import { otpConfig } from '@configs/otp.config';
 import { VerifyOtpUseCase } from './verify-otp.use-case';
 import { OtpRequestRepositoryPort } from '../ports/otp-request.repository.port';
-import { AccountRepositoryPort } from '../ports/account.repository.port';
+import { AccountRepositoryPort } from '@modules/account/application/ports/account.repository.port';
 import { PasswordHasherPort } from '../ports/password-hasher.port';
 import { TokenServicePort } from '../ports/token.service.port';
 import { OtpRequest, TOtpPurpose } from '../../domain/otp-request.entity';
-import { Account } from '../../domain/account.entity';
+import { Account } from '@modules/account/domain/account.entity';
 import {
   OtpNotFoundError,
   OtpWrongCodeError,

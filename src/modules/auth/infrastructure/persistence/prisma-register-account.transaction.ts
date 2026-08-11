@@ -4,11 +4,11 @@ import {
   RegisterAccountTransactionPort,
   RegisterAddressInput,
 } from '../../application/ports/register-account-transaction.port';
-import { Account } from '../../domain/account.entity';
-import { Profile, TProfileType } from '../../domain/profile.entity';
+import { Account } from '@modules/account/domain/account.entity';
+import { Profile, TProfileType } from '@modules/profile/domain/profile.entity';
 import { TLoginType } from '../../domain/value-objects/identifier.vo';
-import { AccountMapper } from './account.mapper';
-import { ProfileMapper } from './profile.mapper';
+import { AccountMapper } from '@modules/account/infrastructure/persistence/account.mapper';
+import { ProfileMapper } from '@modules/profile/infrastructure/persistence/profile.mapper';
 
 @Injectable()
 export class PrismaRegisterAccountTransaction implements RegisterAccountTransactionPort {

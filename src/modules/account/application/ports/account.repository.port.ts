@@ -1,5 +1,5 @@
 import { Account } from '../../domain/account.entity';
-import { TLoginType } from '../../domain/value-objects/identifier.vo';
+import { TLoginType } from '../../domain/value-objects/login-type';
 
 export interface AccountRepositoryPort {
   findByIdentifier(
