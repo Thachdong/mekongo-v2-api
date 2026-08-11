@@ -1,5 +1,7 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { ApiErrorResponse } from '@shared/infrastructure/swagger/api-error-response.decorator';
 
 import { Public } from '../security/public.decorator';
 import { CurrentUser } from '../security/current-user.decorator';
@@ -22,6 +24,11 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RegisterResponseDto } from './dto/register-response.dto';
+import { RequestOtpResponseDto } from './dto/request-otp-response.dto';
+import { VerifyOtpResponseDto } from './dto/verify-otp-response.dto';
+import { TokenPairResponseDto } from './dto/token-pair-response.dto';
+import { ForgotPasswordResponseDto } from './dto/forgot-password-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -42,7 +49,12 @@ export class AuthController {
   @ApiOperation({
     summary: 'Register a new Account + its first Profile (type=INDIVIDUAL)',
   })
-  register(@Body() dto: RegisterDto) {
+  @ApiErrorResponse(
+    400,
+    'PASSWORD_TOO_SHORT — password shorter than 8 chars; INVALID_IDENTIFIER — identifier does not match phone/email format',
+  )
+  @ApiErrorResponse(409, 'IDENTIFIER_TAKEN — identifier already registered')
+  register(@Body() dto: RegisterDto): Promise<RegisterResponseDto> {
     return this.registerAccountUseCase.execute(dto);
   }
 
@@ -53,7 +65,16 @@ export class AuthController {
     summary:
       'Request a 6-digit OTP for register / password-reset / password-change',
   })
-  requestOtp(@Body() dto: RequestOtpDto) {
+  @ApiErrorResponse(
+    400,
+    'OTP_TARGET_REQUIRED — accountId or identifier is required',
+  )
+  @ApiErrorResponse(404, 'ACCOUNT_NOT_FOUND — accountId does not exist')
+  @ApiErrorResponse(
+    429,
+    'OTP_BLOCKED — too many resend attempts, retry after cooldown',
+  )
+  requestOtp(@Body() dto: RequestOtpDto): Promise<RequestOtpResponseDto> {
     return this.requestOtpUseCase.execute({
       purpose: OTP_PURPOSE_MAP[dto.purpose],
       accountId: dto.accountId,
@@ -65,7 +86,19 @@ export class AuthController {
   @Post('otp/verify')
   @HttpCode(200)
   @ApiOperation({ summary: 'Verify a 6-digit OTP' })
-  verifyOtp(@Body() dto: VerifyOtpDto) {
+  @ApiErrorResponse(
+    400,
+    'OTP_NOT_FOUND — otpRequestId not found; OTP_WRONG_CODE — incorrect code; OTP_EXPIRED — OTP expired; OTP_ALREADY_CONSUMED — OTP already used',
+  )
+  @ApiErrorResponse(
+    404,
+    'ACCOUNT_NOT_FOUND — account not found (REGISTER purpose)',
+  )
+  @ApiErrorResponse(
+    429,
+    'OTP_BLOCKED — too many wrong attempts, retry after cooldown',
+  )
+  verifyOtp(@Body() dto: VerifyOtpDto): Promise<VerifyOtpResponseDto> {
     return this.verifyOtpUseCase.execute(dto);
   }
 
@@ -73,7 +106,12 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Log in with phone or email' })
-  login(@Body() dto: LoginDto) {
+  @ApiErrorResponse(
+    401,
+    'INVALID_CREDENTIALS — wrong identifier/password, or account not allowed to login',
+  )
+  @ApiErrorResponse(404, 'ACCOUNT_NOT_FOUND — profile missing for account')
+  login(@Body() dto: LoginDto): Promise<TokenPairResponseDto> {
     return this.loginUseCase.execute(dto);
   }
 
@@ -81,16 +119,26 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Exchange a refresh token for a new access token' })
-  refresh(@Body() dto: RefreshTokenDto) {
+  @ApiErrorResponse(
+    401,
+    'INVALID_REFRESH_TOKEN — token invalid, expired, or revoked',
+  )
+  @ApiErrorResponse(404, 'ACCOUNT_NOT_FOUND — profile missing for account')
+  refresh(@Body() dto: RefreshTokenDto): Promise<TokenPairResponseDto> {
     return this.refreshTokenUseCase.execute(dto);
   }
 
   @Post('logout')
   @HttpCode(204)
+  @ApiBearerAuth('bearerAuth')
   @ApiOperation({
     summary: 'Revoke the current refresh token (e.g. after password change)',
   })
-  logout(@CurrentUser() user: AuthenticatedUser, @Body() dto: LogoutDto) {
+  @ApiErrorResponse(401, 'UNAUTHORIZED — missing or invalid access token')
+  logout(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: LogoutDto,
+  ): Promise<void> {
     return this.logoutUseCase.execute({
       accountId: user.accountId,
       refreshToken: dto.refreshToken,
@@ -104,7 +152,13 @@ export class AuthController {
     summary:
       'Start forgot-password flow (not logged in) — triggers OTP request internally',
   })
-  forgotPassword(@Body() dto: ForgotPasswordDto) {
+  @ApiErrorResponse(
+    429,
+    'OTP_BLOCKED — too many resend attempts, retry after cooldown',
+  )
+  forgotPassword(
+    @Body() dto: ForgotPasswordDto,
+  ): Promise<ForgotPasswordResponseDto> {
     return this.forgotPasswordUseCase.execute(dto);
   }
 
@@ -114,7 +168,12 @@ export class AuthController {
   @ApiOperation({
     summary: 'Set a new password after OTP verification (forgot-password flow)',
   })
-  resetPassword(@Body() dto: ResetPasswordDto) {
+  @ApiErrorResponse(
+    400,
+    'INVALID_RESET_TOKEN — reset token invalid/expired; PASSWORD_TOO_SHORT — new password shorter than 8 chars',
+  )
+  @ApiErrorResponse(404, 'ACCOUNT_NOT_FOUND — account not found')
+  resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
     return this.resetPasswordUseCase.execute(dto);
   }
 }
