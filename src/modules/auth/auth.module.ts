@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
@@ -32,7 +32,12 @@ import { ResetPasswordUseCase } from './application/use-cases/reset-password.use
 import { AuthController } from './infrastructure/http/auth.controller';
 
 @Module({
-  imports: [PassportModule, JwtModule.register({}), AccountModule, ProfileModule],
+  imports: [
+    PassportModule,
+    JwtModule.register({}),
+    forwardRef(() => AccountModule),
+    ProfileModule,
+  ],
   controllers: [AuthController],
   providers: [
     { provide: OTP_REQUEST_REPOSITORY, useClass: PrismaOtpRequestRepository },

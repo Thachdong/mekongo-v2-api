@@ -18,3 +18,12 @@ export class AccountNotFoundError extends DomainError {
     super('Account not found');
   }
 }
+
+export class WrongOldPasswordError extends DomainError {
+  readonly code = 'WRONG_OLD_PASSWORD';
+  readonly httpStatus = HttpStatus.UNAUTHORIZED;
+
+  constructor() {
+    super('Old password is incorrect');
+  }
+}
