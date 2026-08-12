@@ -1,7 +1,6 @@
 enum EOtpPurpose {
     REGISTER
     RESET_PASSWORD
-    CHANGE_PASSWORD
 }
 
 model OtpRequest {

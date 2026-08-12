@@ -10,10 +10,4 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(8)
   newPassword: string;
-
-  @ApiProperty({
-    description: 'From /auth/otp/verify with purpose=change_password',
-  })
-  @IsString()
-  resetToken: string;
 }

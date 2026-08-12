@@ -71,10 +71,7 @@ export class VerifyOtpUseCase {
     otpRequest.consume(now);
 
     let resetToken: string | undefined;
-    if (
-      otpRequest.purpose === 'RESET_PASSWORD' ||
-      otpRequest.purpose === 'CHANGE_PASSWORD'
-    ) {
+    if (otpRequest.purpose === 'RESET_PASSWORD') {
       resetToken = this.tokenService.generateOpaqueToken();
       const resetTokenHash = this.tokenService.hashOpaqueToken(resetToken);
       otpRequest.attachResetToken(

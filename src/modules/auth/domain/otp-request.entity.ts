@@ -4,7 +4,7 @@ import {
   OtpAlreadyConsumedError,
 } from './errors/auth-domain.errors';
 
-export type TOtpPurpose = 'REGISTER' | 'RESET_PASSWORD' | 'CHANGE_PASSWORD';
+export type TOtpPurpose = 'REGISTER' | 'RESET_PASSWORD';
 
 export class OtpRequest {
   constructor(

@@ -10,7 +10,7 @@
 **API 2 — `POST /auth/otp/verify`** (`VerifyOtpUseCase`)
 - Input: `{ otpRequestId, code }`
 - Entity liên quan: verify code trên `OtpRequest` (so hash, check hết hạn/blocked) rồi `consume()`; vì `purpose = REGISTER` → `Account.activate()` (`PENDING_VERIFICATION` → `ACTIVE`).
-- Output: `{ resetToken? }` — rỗng với purpose `REGISTER` (chỉ có giá trị cho `RESET_PASSWORD`/`CHANGE_PASSWORD`).
+- Output: `{ resetToken? }` — rỗng với purpose `REGISTER` (chỉ có giá trị cho `RESET_PASSWORD`).
 
 > Sau bước này account đã `ACTIVE`, client gọi `POST /auth/login` (flow riêng, ngoài phạm vi doc này) để lấy access/refresh token.
 
@@ -37,17 +37,9 @@
 
 ## Flow: Change password (đang đăng nhập)
 
-**API 1 — `POST /auth/otp/request`** (`RequestOtpUseCase`)
-- Input: `{ purpose: change_password, accountId }` — `accountId` lấy từ session hiện tại (client tự truyền, endpoint này tự nó là public, không check JWT).
-- Entity liên quan: tìm `Account` theo `accountId` → suy `identifier` (phone/email) để gửi OTP; tạo `OtpRequest` (purpose = `CHANGE_PASSWORD`).
-- Output: `{ otpRequestId, expiresAt, resendAttemptsRemaining }`
+Không cần OTP — chỉ cần `oldPassword` đúng là đổi được ngay, 1 API duy nhất.
 
-**API 2 — `POST /auth/otp/verify`** (`VerifyOtpUseCase`)
-- Input: `{ otpRequestId, code }`
-- Entity liên quan: verify + `consume()` `OtpRequest`; vì `purpose = CHANGE_PASSWORD` → sinh `resetToken`, hash + gắn TTL vào `OtpRequest` (giống nhánh reset-password).
-- Output: `{ resetToken }`
-
-**API 3 — `POST /account/password/change`** (`ChangePasswordUseCase`, yêu cầu JWT — `accountId` lấy từ access token, không từ body)
-- Input: `{ oldPassword, newPassword, resetToken }`
-- Entity liên quan: hash `resetToken` → tìm `OtpRequest`, check `purpose = CHANGE_PASSWORD` **và** `accountId` khớp với accountId trong JWT (chặn dùng resetToken của người khác) + chưa hết hạn; so `oldPassword` với hash hiện tại trên `Account` (`WrongOldPasswordError` nếu sai); `Account.changePassword()` + save; `OtpRequest.invalidateResetToken()`; `RefreshToken.revokeAllForAccount()` (đăng xuất toàn bộ session, kể cả session hiện tại).
+**API 1 — `POST /account/password/change`** (`ChangePasswordUseCase`, yêu cầu JWT — `accountId` lấy từ access token, không từ body)
+- Input: `{ oldPassword, newPassword }`
+- Entity liên quan: load `Account` theo `accountId` (JWT); so `oldPassword` với hash hiện tại trên `Account` (`WrongOldPasswordError` nếu sai); `Account.changePassword()` + save; `RefreshToken.revokeAllForAccount()` (đăng xuất toàn bộ session, kể cả session hiện tại).
 - Output: `200`, không body — client phải đăng nhập lại.

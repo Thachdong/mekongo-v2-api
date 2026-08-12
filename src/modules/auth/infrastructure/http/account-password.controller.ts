@@ -20,7 +20,7 @@ export class AccountPasswordController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Change password while logged in (Profile screen). Requires current password + OTP. ' +
+      'Change password while logged in (Profile screen). Requires current password. ' +
       'On success, all sessions are revoked — client must log in again.',
   })
   @ApiErrorResponse(
@@ -29,7 +29,7 @@ export class AccountPasswordController {
   )
   @ApiErrorResponse(
     HttpStatus.BAD_REQUEST,
-    'INVALID_RESET_TOKEN — resetToken invalid/expired; PASSWORD_TOO_SHORT — newPassword shorter than 8 chars',
+    'PASSWORD_TOO_SHORT — newPassword shorter than 8 chars',
   )
   @ApiErrorResponse(
     HttpStatus.NOT_FOUND,
@@ -43,7 +43,6 @@ export class AccountPasswordController {
       accountId: user.accountId,
       oldPassword: dto.oldPassword,
       newPassword: dto.newPassword,
-      resetToken: dto.resetToken,
     });
   }
 }
