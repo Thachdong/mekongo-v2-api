@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
@@ -28,17 +28,19 @@ import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-c
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.use-case';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
+import { ChangePasswordUseCase } from './application/use-cases/change-password.use-case';
 
 import { AuthController } from './infrastructure/http/auth.controller';
+import { AccountPasswordController } from './infrastructure/http/account-password.controller';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({}),
-    forwardRef(() => AccountModule),
+    AccountModule,
     ProfileModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, AccountPasswordController],
   providers: [
     { provide: OTP_REQUEST_REPOSITORY, useClass: PrismaOtpRequestRepository },
     {
@@ -62,10 +64,7 @@ import { AuthController } from './infrastructure/http/auth.controller';
     LogoutUseCase,
     ForgotPasswordUseCase,
     ResetPasswordUseCase,
+    ChangePasswordUseCase,
   ],
-  // account/password/change (module khác) cần dùng lại (hash/verify mật khẩu, revoke refresh token) —
-  // export sẵn để account module tái dùng thay vì tự cài đặt lại. Account/Profile giờ đã là chủ sở
-  // hữu domain của chính nó (xem AccountModule/ProfileModule) — Auth chỉ còn export service hỗ trợ.
-  exports: [PASSWORD_HASHER, TOKEN_SERVICE, REFRESH_TOKEN_REPOSITORY, OTP_REQUEST_REPOSITORY],
 })
 export class AuthModule {}

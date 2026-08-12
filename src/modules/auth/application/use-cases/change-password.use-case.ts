@@ -1,32 +1,27 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import {
-  OTP_REQUEST_REPOSITORY,
-  OtpRequestRepositoryPort,
-} from '@modules/auth/application/ports/otp-request.repository.port';
-import {
-  REFRESH_TOKEN_REPOSITORY,
-  RefreshTokenRepositoryPort,
-} from '@modules/auth/application/ports/refresh-token.repository.port';
-import {
-  PASSWORD_HASHER,
-  PasswordHasherPort,
-} from '@modules/auth/application/ports/password-hasher.port';
-import {
-  TOKEN_SERVICE,
-  TokenServicePort,
-} from '@modules/auth/application/ports/token.service.port';
-import { Password } from '@modules/auth/domain/value-objects/password.vo';
-import { InvalidResetTokenError } from '@modules/auth/domain/errors/auth-domain.errors';
-
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
-} from '../ports/account.repository.port';
+} from '@modules/account/application/ports/account.repository.port';
+import {
+  OTP_REQUEST_REPOSITORY,
+  OtpRequestRepositoryPort,
+} from '../ports/otp-request.repository.port';
+import {
+  REFRESH_TOKEN_REPOSITORY,
+  RefreshTokenRepositoryPort,
+} from '../ports/refresh-token.repository.port';
+import {
+  PASSWORD_HASHER,
+  PasswordHasherPort,
+} from '../ports/password-hasher.port';
+import { TOKEN_SERVICE, TokenServicePort } from '../ports/token.service.port';
+import { Password } from '../../domain/value-objects/password.vo';
 import {
   AccountNotFoundError,
+  InvalidResetTokenError,
   WrongOldPasswordError,
-} from '../../domain/errors/account-domain.errors';
+} from '../../domain/errors/auth-domain.errors';
 
 export interface ChangePasswordInput {
   accountId: string;
@@ -52,9 +47,7 @@ export class ChangePasswordUseCase {
 
   async execute(input: ChangePasswordInput): Promise<void> {
     const newPassword = Password.create(input.newPassword);
-    const resetTokenHash = this.tokenService.hashOpaqueToken(
-      input.resetToken,
-    );
+    const resetTokenHash = this.tokenService.hashOpaqueToken(input.resetToken);
 
     const otpRequest =
       await this.otpRequestRepository.findByResetTokenHash(resetTokenHash);
