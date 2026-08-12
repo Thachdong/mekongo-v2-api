@@ -17,7 +17,7 @@ import {
   TLoginType,
 } from '../../domain/value-objects/identifier.vo';
 import { Password } from '../../domain/value-objects/password.vo';
-import { TProfileType } from '@modules/profile/domain/profile.entity';
+import { TProfileType } from '@modules/profile/public-api';
 import { IdentifierTakenError } from '../../domain/errors/auth-domain.errors';
 import { RequestOtpUseCase } from './request-otp.use-case';
 
@@ -61,7 +61,7 @@ export class RegisterAccountUseCase {
 
     const passwordHash = await this.passwordHasher.hash(password.value);
 
-    const { account, profile } = await this.registerTransaction.execute({
+    const { accountId, profileId } = await this.registerTransaction.execute({
       loginType: identifier.loginType,
       identifier: identifier.value,
       passwordHash,
@@ -71,9 +71,9 @@ export class RegisterAccountUseCase {
 
     const { otpRequestId } = await this.requestOtpUseCase.execute({
       purpose: 'REGISTER',
-      accountId: account.id,
+      accountId,
     });
 
-    return { accountId: account.id, profileId: profile.id, otpRequestId };
+    return { accountId, profileId, otpRequestId };
   }
 }

@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@shared/infrastructure/prisma/prisma.service';
 import {
   RegisterAccountTransactionPort,
+  RegisterAccountTransactionResult,
   RegisterAddressInput,
 } from '../../application/ports/register-account-transaction.port';
-import { Account } from '@modules/account/domain/account.entity';
-import { Profile, TProfileType } from '@modules/profile/domain/profile.entity';
 import { TLoginType } from '../../domain/value-objects/identifier.vo';
-import { AccountMapper } from '@modules/account/infrastructure/persistence/account.mapper';
-import { ProfileMapper } from '@modules/profile/infrastructure/persistence/profile.mapper';
+import { TProfileType } from '@modules/profile/public-api';
 
 @Injectable()
 export class PrismaRegisterAccountTransaction implements RegisterAccountTransactionPort {
@@ -20,7 +18,7 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
     passwordHash: string;
     profileType: TProfileType;
     address: RegisterAddressInput;
-  }): Promise<{ account: Account; profile: Profile }> {
+  }): Promise<RegisterAccountTransactionResult> {
     const { accountRow, profileRow } = await this.prisma.$transaction(
       async (tx) => {
         const accountRow = await tx.account.create({
@@ -57,8 +55,8 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
     );
 
     return {
-      account: AccountMapper.toDomain(accountRow),
-      profile: ProfileMapper.toDomain(profileRow),
+      accountId: accountRow.id,
+      profileId: profileRow.id,
     };
   }
 }
