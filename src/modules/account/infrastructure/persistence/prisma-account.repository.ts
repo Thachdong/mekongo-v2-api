@@ -31,6 +31,8 @@ export class PrismaAccountRepository implements AccountRepositoryPort {
       data: {
         passwordHash: account.getPasswordHash(),
         status: account.getStatus(),
+        displayName: account.getDisplayName(),
+        avatarUrl: account.getAvatarUrl(),
       },
     });
   }

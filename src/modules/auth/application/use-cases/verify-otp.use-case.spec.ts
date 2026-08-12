@@ -44,6 +44,9 @@ function makeAccount(): Account {
     null,
     'hashed-password',
     'PENDING_VERIFICATION',
+    null,
+    null,
+    100,
     new Date(),
     new Date(),
   );

@@ -5,22 +5,20 @@ export class Profile {
     readonly id: string,
     readonly accountId: string,
     readonly type: TProfileType,
-    private displayName: string | null,
-    private avatarUrl: string | null,
-    readonly trustScore: number,
+    private _isActive: boolean,
     readonly createdAt: Date,
     readonly updatedAt: Date,
   ) {}
 
-  getDisplayName(): string | null {
-    return this.displayName;
+  isActive(): boolean {
+    return this._isActive;
   }
 
-  getAvatarUrl(): string | null {
-    return this.avatarUrl;
+  activate(): void {
+    this._isActive = true;
   }
 
-  rename(displayName: string): void {
-    this.displayName = displayName;
+  deactivate(): void {
+    this._isActive = false;
   }
 }

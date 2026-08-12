@@ -36,12 +36,13 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
           data: {
             accountId: accountRow.id,
             type: data.profileType,
+            isActive: true,
           },
         });
 
         await tx.address.create({
           data: {
-            profileId: profileRow.id,
+            accountId: accountRow.id,
             label: data.address.label,
             street: data.address.street,
             ward: data.address.ward,

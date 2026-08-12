@@ -49,7 +49,7 @@ export class RefreshTokenUseCase {
       throw new InvalidRefreshTokenError();
     }
 
-    const profile = await this.profileRepository.findSoleByAccountId(
+    const profile = await this.profileRepository.findActiveByAccountId(
       account.id,
     );
     if (!profile) throw new AccountNotFoundError();

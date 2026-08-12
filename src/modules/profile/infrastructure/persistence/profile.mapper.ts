@@ -7,9 +7,7 @@ export class ProfileMapper {
       row.id,
       row.accountId,
       row.type,
-      row.displayName,
-      row.avatarUrl,
-      row.trustScore,
+      row.isActive,
       row.createdAt,
       row.updatedAt,
     );

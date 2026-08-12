@@ -20,6 +20,9 @@ function makeAccount(
     null,
     'hashed-password',
     status,
+    null,
+    null,
+    100,
     new Date(),
     new Date(),
   );
@@ -30,9 +33,7 @@ function makeProfile(): Profile {
     'profile-1',
     'account-1',
     'INDIVIDUAL',
-    null,
-    null,
-    0,
+    true,
     new Date(),
     new Date(),
   );
@@ -53,7 +54,7 @@ describe('LoginUseCase', () => {
       save: jest.fn(),
     };
     profileRepository = {
-      findSoleByAccountId: jest.fn(),
+      findActiveByAccountId: jest.fn(),
     };
     refreshTokenRepository = {
       create: jest.fn(),
@@ -119,7 +120,7 @@ describe('LoginUseCase', () => {
   it('throw AccountNotFoundError nếu account ACTIVE nhưng thiếu profile (bất thường)', async () => {
     accountRepository.findByIdentifier.mockResolvedValue(makeAccount());
     passwordHasher.compare.mockResolvedValue(true);
-    profileRepository.findSoleByAccountId.mockResolvedValue(null);
+    profileRepository.findActiveByAccountId.mockResolvedValue(null);
 
     await expect(useCase.execute(input)).rejects.toThrow(AccountNotFoundError);
   });
@@ -127,7 +128,7 @@ describe('LoginUseCase', () => {
   it('trả TokenPair + tạo refresh token khi thành công', async () => {
     accountRepository.findByIdentifier.mockResolvedValue(makeAccount());
     passwordHasher.compare.mockResolvedValue(true);
-    profileRepository.findSoleByAccountId.mockResolvedValue(makeProfile());
+    profileRepository.findActiveByAccountId.mockResolvedValue(makeProfile());
     tokenService.signAccessToken.mockResolvedValue('access-token');
     tokenService.issueRefreshToken.mockReturnValue({
       token: 'refresh-plain',

@@ -66,7 +66,7 @@ export class LoginUseCase {
       throw new InvalidCredentialsError();
     }
 
-    const profile = await this.profileRepository.findSoleByAccountId(
+    const profile = await this.profileRepository.findActiveByAccountId(
       account.id,
     );
     if (!profile) throw new AccountNotFoundError();

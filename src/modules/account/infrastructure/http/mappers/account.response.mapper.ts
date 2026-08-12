@@ -7,6 +7,9 @@ export class AccountResponseMapper {
       id: account.id,
       loginType: account.phone ? 'phone' : 'email',
       identifier: (account.phone ?? account.email)!,
+      displayName: account.getDisplayName(),
+      avatarUrl: account.getAvatarUrl(),
+      trustScore: account.trustScore,
       createdAt: account.createdAt,
     };
   }

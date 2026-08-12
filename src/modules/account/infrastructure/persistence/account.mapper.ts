@@ -9,6 +9,9 @@ export class AccountMapper {
       row.email,
       row.passwordHash,
       row.status,
+      row.displayName,
+      row.avatarUrl,
+      row.trustScore,
       row.createdAt,
       row.updatedAt,
     );

@@ -8,8 +8,10 @@ import { ProfileMapper } from './profile.mapper';
 export class PrismaProfileRepository implements ProfileRepositoryPort {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findSoleByAccountId(accountId: string): Promise<Profile | null> {
-    const row = await this.prisma.profile.findFirst({ where: { accountId } });
+  async findActiveByAccountId(accountId: string): Promise<Profile | null> {
+    const row = await this.prisma.profile.findFirst({
+      where: { accountId, isActive: true },
+    });
     return row ? ProfileMapper.toDomain(row) : null;
   }
 }

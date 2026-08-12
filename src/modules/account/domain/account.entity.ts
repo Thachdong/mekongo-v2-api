@@ -9,6 +9,9 @@ export class Account {
     readonly email: string | null,
     private _passwordHash: string,
     private _status: TAccountStatus,
+    private _displayName: string | null,
+    private _avatarUrl: string | null,
+    readonly trustScore: number,
     readonly createdAt: Date,
     readonly updatedAt: Date,
   ) {}
@@ -19,6 +22,22 @@ export class Account {
 
   getStatus(): TAccountStatus {
     return this._status;
+  }
+
+  getDisplayName(): string | null {
+    return this._displayName;
+  }
+
+  getAvatarUrl(): string | null {
+    return this._avatarUrl;
+  }
+
+  rename(displayName: string): void {
+    this._displayName = displayName;
+  }
+
+  setAvatarUrl(avatarUrl: string): void {
+    this._avatarUrl = avatarUrl;
   }
 
   activate(): void {
