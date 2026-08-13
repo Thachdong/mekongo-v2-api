@@ -44,7 +44,6 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
             label: data.address.label,
             street: data.address.street,
             ward: data.address.ward,
-            district: data.address.district,
             provinceId: data.address.provinceId,
             isDefault: data.address.isDefault ?? true,
           },

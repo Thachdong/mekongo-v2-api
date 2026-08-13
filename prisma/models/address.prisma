@@ -5,7 +5,8 @@ model Address {
   label      String?
   street     String
   ward       String
-  district   String
   provinceId String
   isDefault  Boolean @default(false)
+
+  @@index([accountId])
 }

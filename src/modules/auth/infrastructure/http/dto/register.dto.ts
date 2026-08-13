@@ -29,11 +29,6 @@ export class AddressInputDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  district: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   provinceId: string;
 
   @ApiPropertyOptional({ default: false })

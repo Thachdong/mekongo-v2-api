@@ -1,5 +1,5 @@
 model Post {
-    id        String  @id @default(uuid())
-    profileId String
-    profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }

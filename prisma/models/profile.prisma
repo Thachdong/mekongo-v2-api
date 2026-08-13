@@ -10,13 +10,13 @@ model Profile {
 
   // Only one profile per account can be active at a time (app-layer invariant,
   // same pattern as Address.isDefault below).
-  isActive  Boolean      @default(false)
+  isActive Boolean @default(false)
 
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  posts     Post[]
-  comments  Comment[]
+  posts    Post[]
+  comments Comment[]
 
   @@unique([accountId, type])
 }

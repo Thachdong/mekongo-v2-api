@@ -5,7 +5,6 @@ export interface RegisterAddressInput {
   label?: string;
   street: string;
   ward: string;
-  district: string;
   provinceId: string;
   isDefault?: boolean;
 }

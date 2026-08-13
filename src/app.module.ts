@@ -16,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AccountModule } from './modules/account/account.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { ReferenceDataModule } from './modules/reference-data/reference-data.module';
+import { AddressModule } from './modules/address/address.module';
 import { JwtAuthGuard } from './modules/auth/infrastructure/security/jwt-auth.guard';
 import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
 
@@ -40,6 +41,7 @@ import { PrismaModule } from '@shared/infrastructure/prisma/prisma.module';
     AccountModule,
     ProfileModule,
     ReferenceDataModule,
+    AddressModule,
     AuthModule,
     PrismaModule,
   ],

@@ -5,19 +5,19 @@ enum EAccountStatus {
 }
 
 model Account {
-  id            String         @id @default(uuid())
-  phone         String?        @unique
-  email         String?        @unique
-  passwordHash  String
-  status        EAccountStatus @default(ACTIVE)
+  id           String         @id @default(uuid())
+  phone        String?        @unique
+  email        String?        @unique
+  passwordHash String
+  status       EAccountStatus @default(ACTIVE)
 
   // Shared across every profile type — not specific to any one "role".
-  displayName   String?
-  avatarUrl     String?
-  trustScore    Int            @default(100)
+  displayName String?
+  avatarUrl   String?
+  trustScore  Int     @default(100)
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   addresses     Address[]
   profiles      Profile[]
