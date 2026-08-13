@@ -5,6 +5,7 @@ import { PrismaAddressRepository } from './infrastructure/persistence/prisma-add
 import { CreateAddressUseCase } from './application/use-cases/create-address.use-case';
 import { ListAddressesUseCase } from './application/use-cases/list-addresses.use-case';
 import { SetDefaultAddressUseCase } from './application/use-cases/set-default-address.use-case';
+import { DeleteAddressUseCase } from './application/use-cases/delete-address.use-case';
 import { AddressController } from './infrastructure/http/address.controller';
 
 @Module({
@@ -14,6 +15,7 @@ import { AddressController } from './infrastructure/http/address.controller';
     CreateAddressUseCase,
     ListAddressesUseCase,
     SetDefaultAddressUseCase,
+    DeleteAddressUseCase,
   ],
 })
 export class AddressModule {}

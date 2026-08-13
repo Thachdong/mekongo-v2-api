@@ -61,4 +61,8 @@ export class PrismaAddressRepository implements AddressRepositoryPort {
       });
     });
   }
+
+  async delete(addressId: string): Promise<void> {
+    await this.prisma.address.delete({ where: { id: addressId } });
+  }
 }

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   Patch,
@@ -17,6 +19,7 @@ import { AuthenticatedUser } from '@modules/auth/infrastructure/security/jwt-acc
 import { CreateAddressUseCase } from '../../application/use-cases/create-address.use-case';
 import { ListAddressesUseCase } from '../../application/use-cases/list-addresses.use-case';
 import { SetDefaultAddressUseCase } from '../../application/use-cases/set-default-address.use-case';
+import { DeleteAddressUseCase } from '../../application/use-cases/delete-address.use-case';
 
 import { CreateAddressDto } from './dto/create-address.dto';
 import { AddressResponseDto } from './dto/address-response.dto';
@@ -30,6 +33,7 @@ export class AddressController {
     private readonly createAddressUseCase: CreateAddressUseCase,
     private readonly listAddressesUseCase: ListAddressesUseCase,
     private readonly setDefaultAddressUseCase: SetDefaultAddressUseCase,
+    private readonly deleteAddressUseCase: DeleteAddressUseCase,
   ) {}
 
   @Get()
@@ -87,5 +91,29 @@ export class AddressController {
       id,
     );
     return AddressResponseMapper.toApi(address);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Delete an address from the current account's addresses",
+  })
+  @ApiErrorResponse(
+    HttpStatus.UNAUTHORIZED,
+    'UNAUTHORIZED — access token missing, expired, or invalid',
+  )
+  @ApiErrorResponse(
+    HttpStatus.NOT_FOUND,
+    'ADDRESS_NOT_FOUND — address not found or not owned by the current account',
+  )
+  @ApiErrorResponse(
+    HttpStatus.CONFLICT,
+    'CANNOT_DELETE_DEFAULT_ADDRESS — the default address cannot be deleted',
+  )
+  async delete(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.deleteAddressUseCase.execute(user.accountId, id);
   }
 }

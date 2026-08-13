@@ -21,6 +21,8 @@ export interface AddressRepositoryPort {
 
   /** Unset default của các address khác cùng account rồi set address này thành default, trong cùng transaction. */
   setDefault(accountId: string, addressId: string): Promise<AddressView>;
+
+  delete(addressId: string): Promise<void>;
 }
 
 export const ADDRESS_REPOSITORY = Symbol('ADDRESS_REPOSITORY');

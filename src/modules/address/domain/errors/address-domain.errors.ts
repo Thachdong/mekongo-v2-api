@@ -9,3 +9,12 @@ export class AddressNotFoundError extends DomainError {
     super('Address not found');
   }
 }
+
+export class CannotDeleteDefaultAddressError extends DomainError {
+  readonly code = 'CANNOT_DELETE_DEFAULT_ADDRESS';
+  readonly httpStatus = HttpStatus.CONFLICT;
+
+  constructor() {
+    super('Cannot delete the default address');
+  }
+}
