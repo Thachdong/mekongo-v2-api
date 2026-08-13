@@ -15,6 +15,10 @@ export class PrismaAddressRepository implements AddressRepositoryPort {
     return this.prisma.address.count({ where: { accountId } });
   }
 
+  findById(id: string): Promise<AddressView | null> {
+    return this.prisma.address.findUnique({ where: { id } });
+  }
+
   findManyByAccountId(accountId: string): Promise<AddressView[]> {
     return this.prisma.address.findMany({
       where: { accountId },
@@ -40,6 +44,20 @@ export class PrismaAddressRepository implements AddressRepositoryPort {
           provinceId: data.provinceId,
           isDefault: data.isDefault,
         },
+      });
+    });
+  }
+
+  async setDefault(accountId: string, addressId: string): Promise<AddressView> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.address.updateMany({
+        where: { accountId, isDefault: true },
+        data: { isDefault: false },
+      });
+
+      return tx.address.update({
+        where: { id: addressId },
+        data: { isDefault: true },
       });
     });
   }
