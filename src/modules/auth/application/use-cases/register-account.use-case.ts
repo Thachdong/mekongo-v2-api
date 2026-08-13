@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_LOOKUP,
-  AccountLookupPort,
-} from '../ports/account-lookup.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   PASSWORD_HASHER,
   PasswordHasherPort,
@@ -38,8 +38,8 @@ export interface RegisterAccountResult {
 @Injectable()
 export class RegisterAccountUseCase {
   constructor(
-    @Inject(ACCOUNT_LOOKUP)
-    private readonly accountLookup: AccountLookupPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: PasswordHasherPort,
     @Inject(REGISTER_ACCOUNT_TRANSACTION)
@@ -51,7 +51,7 @@ export class RegisterAccountUseCase {
     const identifier = Identifier.create(input.loginType, input.identifier);
     const password = Password.create(input.password);
 
-    const exists = await this.accountLookup.existsByIdentifier(
+    const exists = await this.accountProvider.existsByIdentifier(
       identifier.loginType,
       identifier.value,
     );

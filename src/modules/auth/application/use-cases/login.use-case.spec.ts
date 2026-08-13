@@ -1,59 +1,46 @@
 import { LoginUseCase } from './login.use-case';
-import { AccountRepositoryPort } from '@modules/account/application/ports/account.repository.port';
-import { ProfileRepositoryPort } from '@modules/profile/application/ports/profile.repository.port';
+import {
+  AccountProviderPort,
+  AccountView,
+} from '../ports/account-provider.port';
+import {
+  ProfileProviderPort,
+  ProfileView,
+} from '../ports/profile-provider.port';
 import { RefreshTokenRepositoryPort } from '../ports/refresh-token.repository.port';
-import { PasswordHasherPort } from '../ports/password-hasher.port';
 import { TokenServicePort } from '../ports/token.service.port';
-import { Account } from '@modules/account/domain/account.entity';
-import { Profile } from '@modules/profile/domain/profile.entity';
 import {
   AccountNotFoundError,
   InvalidCredentialsError,
 } from '../../domain/errors/auth-domain.errors';
 
-function makeAccount(
-  status: 'ACTIVE' | 'PENDING_VERIFICATION' | 'BLOCKED' = 'ACTIVE',
-): Account {
-  return new Account(
-    'account-1',
-    '0912345678',
-    null,
-    'hashed-password',
-    status,
-    null,
-    null,
-    100,
-    new Date(),
-    new Date(),
-  );
+function makeAccount(): AccountView {
+  return { id: 'account-1', phone: '0912345678', email: null };
 }
 
-function makeProfile(): Profile {
-  return new Profile(
-    'profile-1',
-    'account-1',
-    'INDIVIDUAL',
-    true,
-    new Date(),
-    new Date(),
-  );
+function makeProfile(): ProfileView {
+  return { id: 'profile-1' };
 }
 
 describe('LoginUseCase', () => {
-  let accountRepository: jest.Mocked<AccountRepositoryPort>;
-  let profileRepository: jest.Mocked<ProfileRepositoryPort>;
+  let accountProvider: jest.Mocked<AccountProviderPort>;
+  let profileProvider: jest.Mocked<ProfileProviderPort>;
   let refreshTokenRepository: jest.Mocked<RefreshTokenRepositoryPort>;
-  let passwordHasher: jest.Mocked<PasswordHasherPort>;
   let tokenService: jest.Mocked<TokenServicePort>;
   let useCase: LoginUseCase;
 
   beforeEach(() => {
-    accountRepository = {
+    accountProvider = {
+      authenticate: jest.fn(),
+      existsByIdentifier: jest.fn(),
       findByIdentifier: jest.fn(),
       findById: jest.fn(),
-      save: jest.fn(),
+      canLogin: jest.fn(),
+      changePasswordWithVerification: jest.fn(),
+      changePassword: jest.fn(),
+      activate: jest.fn(),
     };
-    profileRepository = {
+    profileProvider = {
       findActiveByAccountId: jest.fn(),
     };
     refreshTokenRepository = {
@@ -61,10 +48,6 @@ describe('LoginUseCase', () => {
       findByTokenHash: jest.fn(),
       revoke: jest.fn(),
       revokeAllForAccount: jest.fn(),
-    };
-    passwordHasher = {
-      hash: jest.fn(),
-      compare: jest.fn(),
     };
     tokenService = {
       signAccessToken: jest.fn(),
@@ -76,10 +59,9 @@ describe('LoginUseCase', () => {
     };
 
     useCase = new LoginUseCase(
-      accountRepository,
-      profileRepository,
+      accountProvider,
+      profileProvider,
       refreshTokenRepository,
-      passwordHasher,
       tokenService,
     );
   });
@@ -90,45 +72,29 @@ describe('LoginUseCase', () => {
     password: 'password123',
   };
 
-  it('throw InvalidCredentialsError nếu không tìm thấy account', async () => {
-    accountRepository.findByIdentifier.mockResolvedValue(null);
+  it('throw InvalidCredentialsError nếu authenticate trả null (không tìm thấy / không được phép login / sai mật khẩu)', async () => {
+    accountProvider.authenticate.mockResolvedValue(null);
 
     await expect(useCase.execute(input)).rejects.toThrow(
       InvalidCredentialsError,
     );
-  });
-
-  it('throw InvalidCredentialsError nếu account không ACTIVE', async () => {
-    accountRepository.findByIdentifier.mockResolvedValue(
-      makeAccount('PENDING_VERIFICATION'),
-    );
-
-    await expect(useCase.execute(input)).rejects.toThrow(
-      InvalidCredentialsError,
+    expect(accountProvider.authenticate).toHaveBeenCalledWith(
+      'phone',
+      '0912345678',
+      'password123',
     );
   });
 
-  it('throw InvalidCredentialsError nếu sai mật khẩu', async () => {
-    accountRepository.findByIdentifier.mockResolvedValue(makeAccount());
-    passwordHasher.compare.mockResolvedValue(false);
-
-    await expect(useCase.execute(input)).rejects.toThrow(
-      InvalidCredentialsError,
-    );
-  });
-
-  it('throw AccountNotFoundError nếu account ACTIVE nhưng thiếu profile (bất thường)', async () => {
-    accountRepository.findByIdentifier.mockResolvedValue(makeAccount());
-    passwordHasher.compare.mockResolvedValue(true);
-    profileRepository.findActiveByAccountId.mockResolvedValue(null);
+  it('throw AccountNotFoundError nếu authenticate thành công nhưng thiếu profile (bất thường)', async () => {
+    accountProvider.authenticate.mockResolvedValue(makeAccount());
+    profileProvider.findActiveByAccountId.mockResolvedValue(null);
 
     await expect(useCase.execute(input)).rejects.toThrow(AccountNotFoundError);
   });
 
   it('trả TokenPair + tạo refresh token khi thành công', async () => {
-    accountRepository.findByIdentifier.mockResolvedValue(makeAccount());
-    passwordHasher.compare.mockResolvedValue(true);
-    profileRepository.findActiveByAccountId.mockResolvedValue(makeProfile());
+    accountProvider.authenticate.mockResolvedValue(makeAccount());
+    profileProvider.findActiveByAccountId.mockResolvedValue(makeProfile());
     tokenService.signAccessToken.mockResolvedValue('access-token');
     tokenService.issueRefreshToken.mockReturnValue({
       token: 'refresh-plain',

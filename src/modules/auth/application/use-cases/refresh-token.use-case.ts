@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '@modules/account/application/ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
-  PROFILE_REPOSITORY,
-  ProfileRepositoryPort,
-} from '@modules/profile/application/ports/profile.repository.port';
+  PROFILE_PROVIDER,
+  ProfileProviderPort,
+} from '../ports/profile-provider.port';
 import {
   REFRESH_TOKEN_REPOSITORY,
   RefreshTokenRepositoryPort,
@@ -25,10 +25,10 @@ export interface RefreshTokenInput {
 @Injectable()
 export class RefreshTokenUseCase {
   constructor(
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
-    @Inject(PROFILE_REPOSITORY)
-    private readonly profileRepository: ProfileRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
+    @Inject(PROFILE_PROVIDER)
+    private readonly profileProvider: ProfileProviderPort,
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: RefreshTokenRepositoryPort,
     @Inject(TOKEN_SERVICE)
@@ -44,13 +44,13 @@ export class RefreshTokenUseCase {
       throw new InvalidRefreshTokenError();
     }
 
-    const account = await this.accountRepository.findById(record.accountId);
-    if (!account || !account.isLoginAllowed()) {
+    const canLogin = await this.accountProvider.canLogin(record.accountId);
+    if (!canLogin) {
       throw new InvalidRefreshTokenError();
     }
 
-    const profile = await this.profileRepository.findActiveByAccountId(
-      account.id,
+    const profile = await this.profileProvider.findActiveByAccountId(
+      record.accountId,
     );
     if (!profile) throw new AccountNotFoundError();
 
@@ -58,13 +58,13 @@ export class RefreshTokenUseCase {
     await this.refreshTokenRepository.revoke(record.id);
 
     const accessToken = await this.tokenService.signAccessToken({
-      accountId: account.id,
+      accountId: record.accountId,
       profileId: profile.id,
     });
     const issued = this.tokenService.issueRefreshToken();
 
     await this.refreshTokenRepository.create({
-      accountId: account.id,
+      accountId: record.accountId,
       tokenHash: issued.tokenHash,
       expiresAt: issued.expiresAt,
     });

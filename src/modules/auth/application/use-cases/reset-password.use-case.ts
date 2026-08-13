@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '@modules/account/application/ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   OTP_REQUEST_REPOSITORY,
   OtpRequestRepositoryPort,
@@ -11,10 +11,6 @@ import {
   REFRESH_TOKEN_REPOSITORY,
   RefreshTokenRepositoryPort,
 } from '../ports/refresh-token.repository.port';
-import {
-  PASSWORD_HASHER,
-  PasswordHasherPort,
-} from '../ports/password-hasher.port';
 import { TOKEN_SERVICE, TokenServicePort } from '../ports/token.service.port';
 import { Password } from '../../domain/value-objects/password.vo';
 import {
@@ -32,12 +28,10 @@ export class ResetPasswordUseCase {
   constructor(
     @Inject(OTP_REQUEST_REPOSITORY)
     private readonly otpRequestRepository: OtpRequestRepositoryPort,
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: RefreshTokenRepositoryPort,
-    @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: PasswordHasherPort,
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenServicePort,
   ) {}
@@ -60,16 +54,16 @@ export class ResetPasswordUseCase {
 
     if (!otpRequest.accountId) throw new AccountNotFoundError();
 
-    const account = await this.accountRepository.findById(otpRequest.accountId);
-    if (!account) throw new AccountNotFoundError();
+    const result = await this.accountProvider.changePassword(
+      otpRequest.accountId,
+      password.value,
+    );
+    if (result === 'ACCOUNT_NOT_FOUND') throw new AccountNotFoundError();
 
-    const passwordHash = await this.passwordHasher.hash(password.value);
-    account.changePassword(passwordHash);
     otpRequest.invalidateResetToken();
 
-    await this.accountRepository.save(account);
     await this.otpRequestRepository.save(otpRequest);
     // Đổi mật khẩu xong revoke toàn bộ session — client phải login lại.
-    await this.refreshTokenRepository.revokeAllForAccount(account.id);
+    await this.refreshTokenRepository.revokeAllForAccount(otpRequest.accountId);
   }
 }

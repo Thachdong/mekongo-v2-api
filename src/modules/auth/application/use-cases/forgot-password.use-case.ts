@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '@modules/account/application/ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   Identifier,
   TLoginType,
@@ -22,15 +22,15 @@ export interface ForgotPasswordResult {
 @Injectable()
 export class ForgotPasswordUseCase {
   constructor(
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     private readonly requestOtpUseCase: RequestOtpUseCase,
   ) {}
 
   async execute(input: ForgotPasswordInput): Promise<ForgotPasswordResult> {
     const identifier = Identifier.create(input.loginType, input.identifier);
 
-    const account = await this.accountRepository.findByIdentifier(
+    const account = await this.accountProvider.findByIdentifier(
       identifier.loginType,
       identifier.value,
     );

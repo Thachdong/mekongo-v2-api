@@ -2,9 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { otpConfig } from '@configs/otp.config';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '@modules/account/application/ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   OTP_REQUEST_REPOSITORY,
   OtpRequestRepositoryPort,
@@ -34,8 +34,8 @@ export class VerifyOtpUseCase {
   constructor(
     @Inject(OTP_REQUEST_REPOSITORY)
     private readonly otpRequestRepository: OtpRequestRepositoryPort,
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: PasswordHasherPort,
     @Inject(TOKEN_SERVICE)
@@ -86,13 +86,8 @@ export class VerifyOtpUseCase {
     if (otpRequest.purpose === 'REGISTER') {
       if (!otpRequest.accountId) throw new AccountNotFoundError();
 
-      const account = await this.accountRepository.findById(
-        otpRequest.accountId,
-      );
-      if (!account) throw new AccountNotFoundError();
-
-      account.activate();
-      await this.accountRepository.save(account);
+      const result = await this.accountProvider.activate(otpRequest.accountId);
+      if (result === 'ACCOUNT_NOT_FOUND') throw new AccountNotFoundError();
     }
 
     return { resetToken };
