@@ -23,4 +23,9 @@ export const validationSchema = Joi.object({
   WS_PORT: Joi.number().default(3001),
   WS_NAMESPACE: Joi.string().default('/'),
   WS_CORS_ORIGIN: Joi.string().default('*'),
+
+  FIREBASE_PROJECT_ID: Joi.string().required(),
+  FIREBASE_CLIENT_EMAIL: Joi.string().required(),
+  FIREBASE_PRIVATE_KEY: Joi.string().required(),
+  FIREBASE_STORAGE_BUCKET: Joi.string().required(),
 });

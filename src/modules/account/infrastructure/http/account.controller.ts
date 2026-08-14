@@ -44,7 +44,8 @@ export class AccountController {
 
   @Patch()
   @ApiOperation({
-    summary: "Update the current account's displayName/avatarUrl",
+    summary:
+      "Update the current account's displayName/avatar (avatarKey từ POST /uploads/sign-url)",
   })
   @ApiErrorResponse(
     HttpStatus.UNAUTHORIZED,

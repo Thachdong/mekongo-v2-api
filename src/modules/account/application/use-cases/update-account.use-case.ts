@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { UploadFacade } from '@modules/upload/upload.facade';
+
 import {
   ACCOUNT_REPOSITORY,
   AccountRepositoryPort,
@@ -9,7 +11,7 @@ import { AccountNotFoundError } from '../../domain/errors/account-domain.errors'
 
 export interface UpdateAccountInput {
   displayName?: string;
-  avatarUrl?: string;
+  avatarKey?: string;
 }
 
 @Injectable()
@@ -17,6 +19,7 @@ export class UpdateAccountUseCase {
   constructor(
     @Inject(ACCOUNT_REPOSITORY)
     private readonly accountRepository: AccountRepositoryPort,
+    private readonly uploadFacade: UploadFacade,
   ) {}
 
   async execute(
@@ -27,7 +30,13 @@ export class UpdateAccountUseCase {
     if (!account) throw new AccountNotFoundError();
 
     if (input.displayName !== undefined) account.rename(input.displayName);
-    if (input.avatarUrl !== undefined) account.setAvatarUrl(input.avatarUrl);
+    if (input.avatarKey !== undefined) {
+      const avatarUrl = await this.uploadFacade.finalize(
+        accountId,
+        input.avatarKey,
+      );
+      account.setAvatarUrl(avatarUrl);
+    }
 
     await this.accountRepository.save(account);
     return account;
