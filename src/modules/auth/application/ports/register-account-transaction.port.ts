@@ -1,14 +1,17 @@
-import { Account } from '../../domain/account.entity';
-import { Profile, TProfileType } from '../../domain/profile.entity';
 import { TLoginType } from '../../domain/value-objects/identifier.vo';
+import { TProfileType } from '@modules/profile/public-api';
 
 export interface RegisterAddressInput {
   label?: string;
   street: string;
   ward: string;
-  district: string;
   provinceId: string;
   isDefault?: boolean;
+}
+
+export interface RegisterAccountTransactionResult {
+  accountId: string;
+  profileId: string;
 }
 
 export interface RegisterAccountTransactionPort {
@@ -19,7 +22,7 @@ export interface RegisterAccountTransactionPort {
     passwordHash: string;
     profileType: TProfileType;
     address: RegisterAddressInput;
-  }): Promise<{ account: Account; profile: Profile }>;
+  }): Promise<RegisterAccountTransactionResult>;
 }
 
 export const REGISTER_ACCOUNT_TRANSACTION = Symbol(

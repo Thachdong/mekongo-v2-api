@@ -3,19 +3,20 @@ enum EProfileType {
 }
 
 model Profile {
-  id         String      @id @default(uuid())
-  accountId  String
-  account    Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  type       EProfileType @default(INDIVIDUAL)
-  displayName String?
-  avatarUrl  String?
-  trustScore Int         @default(0)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id        String       @id @default(uuid())
+  accountId String
+  account   Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  type      EProfileType @default(INDIVIDUAL)
 
-  addresses  Address[]
-  posts      Post[]
-  comments   Comment[]
+  // Only one profile per account can be active at a time (app-layer invariant,
+  // same pattern as Address.isDefault below).
+  isActive Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts    Post[]
+  comments Comment[]
 
   @@unique([accountId, type])
 }

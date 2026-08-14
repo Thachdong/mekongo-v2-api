@@ -1,11 +1,12 @@
 model Address {
   id         String  @id @default(uuid())
-  profileId  String
-  profile    Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  accountId  String
+  account    Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   label      String?
   street     String
   ward       String
-  district   String
   provinceId String
   isDefault  Boolean @default(false)
+
+  @@index([accountId])
 }

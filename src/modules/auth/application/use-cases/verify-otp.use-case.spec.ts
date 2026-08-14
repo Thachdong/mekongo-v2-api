@@ -2,11 +2,10 @@ import { ConfigType } from '@nestjs/config';
 import { otpConfig } from '@configs/otp.config';
 import { VerifyOtpUseCase } from './verify-otp.use-case';
 import { OtpRequestRepositoryPort } from '../ports/otp-request.repository.port';
-import { AccountRepositoryPort } from '../ports/account.repository.port';
+import { AccountProviderPort } from '../ports/account-provider.port';
 import { PasswordHasherPort } from '../ports/password-hasher.port';
 import { TokenServicePort } from '../ports/token.service.port';
 import { OtpRequest, TOtpPurpose } from '../../domain/otp-request.entity';
-import { Account } from '../../domain/account.entity';
 import {
   OtpNotFoundError,
   OtpWrongCodeError,
@@ -37,18 +36,6 @@ function makeOtpRequest(
   );
 }
 
-function makeAccount(): Account {
-  return new Account(
-    'account-1',
-    '0912345678',
-    null,
-    'hashed-password',
-    'PENDING_VERIFICATION',
-    new Date(),
-    new Date(),
-  );
-}
-
 const config: ConfigType<typeof otpConfig> = {
   codeLength: 6,
   ttlMinutes: 5,
@@ -61,7 +48,7 @@ const config: ConfigType<typeof otpConfig> = {
 
 describe('VerifyOtpUseCase', () => {
   let otpRequestRepository: jest.Mocked<OtpRequestRepositoryPort>;
-  let accountRepository: jest.Mocked<AccountRepositoryPort>;
+  let accountProvider: jest.Mocked<AccountProviderPort>;
   let passwordHasher: jest.Mocked<PasswordHasherPort>;
   let tokenService: jest.Mocked<TokenServicePort>;
   let useCase: VerifyOtpUseCase;
@@ -74,10 +61,15 @@ describe('VerifyOtpUseCase', () => {
       findByResetTokenHash: jest.fn(),
       save: jest.fn(),
     };
-    accountRepository = {
+    accountProvider = {
+      authenticate: jest.fn(),
+      existsByIdentifier: jest.fn(),
       findByIdentifier: jest.fn(),
       findById: jest.fn(),
-      save: jest.fn(),
+      canLogin: jest.fn(),
+      changePasswordWithVerification: jest.fn(),
+      changePassword: jest.fn(),
+      activate: jest.fn(),
     };
     passwordHasher = {
       hash: jest.fn(),
@@ -94,7 +86,7 @@ describe('VerifyOtpUseCase', () => {
 
     useCase = new VerifyOtpUseCase(
       otpRequestRepository,
-      accountRepository,
+      accountProvider,
       passwordHasher,
       tokenService,
       config,
@@ -123,14 +115,12 @@ describe('VerifyOtpUseCase', () => {
     const otp = makeOtpRequest('REGISTER');
     otpRequestRepository.findById.mockResolvedValue(otp);
     passwordHasher.compare.mockResolvedValue(true);
-    const account = makeAccount();
-    accountRepository.findById.mockResolvedValue(account);
+    accountProvider.activate.mockResolvedValue('OK');
 
     const result = await useCase.execute(input);
 
     expect(result.resetToken).toBeUndefined();
-    expect(account.getStatus()).toBe('ACTIVE');
-    expect(accountRepository.save).toHaveBeenCalledWith(account);
+    expect(accountProvider.activate).toHaveBeenCalledWith(otp.accountId);
     expect(otp.isConsumed()).toBe(true);
   });
 
@@ -145,6 +135,6 @@ describe('VerifyOtpUseCase', () => {
 
     expect(result.resetToken).toBe('reset-token-plain');
     expect(otp.matchesResetToken('reset-token-hash')).toBe(true);
-    expect(accountRepository.save).not.toHaveBeenCalled();
+    expect(accountProvider.activate).not.toHaveBeenCalled();
   });
 });

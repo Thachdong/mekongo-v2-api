@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@shared/infrastructure/prisma/prisma.service';
 import {
   RegisterAccountTransactionPort,
+  RegisterAccountTransactionResult,
   RegisterAddressInput,
 } from '../../application/ports/register-account-transaction.port';
-import { Account } from '../../domain/account.entity';
-import { Profile, TProfileType } from '../../domain/profile.entity';
 import { TLoginType } from '../../domain/value-objects/identifier.vo';
-import { AccountMapper } from './account.mapper';
-import { ProfileMapper } from './profile.mapper';
+import { TProfileType } from '@modules/profile/public-api';
 
 @Injectable()
 export class PrismaRegisterAccountTransaction implements RegisterAccountTransactionPort {
@@ -20,7 +18,7 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
     passwordHash: string;
     profileType: TProfileType;
     address: RegisterAddressInput;
-  }): Promise<{ account: Account; profile: Profile }> {
+  }): Promise<RegisterAccountTransactionResult> {
     const { accountRow, profileRow } = await this.prisma.$transaction(
       async (tx) => {
         const accountRow = await tx.account.create({
@@ -36,16 +34,16 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
           data: {
             accountId: accountRow.id,
             type: data.profileType,
+            isActive: true,
           },
         });
 
         await tx.address.create({
           data: {
-            profileId: profileRow.id,
+            accountId: accountRow.id,
             label: data.address.label,
             street: data.address.street,
             ward: data.address.ward,
-            district: data.address.district,
             provinceId: data.address.provinceId,
             isDefault: data.address.isDefault ?? true,
           },
@@ -56,8 +54,8 @@ export class PrismaRegisterAccountTransaction implements RegisterAccountTransact
     );
 
     return {
-      account: AccountMapper.toDomain(accountRow),
-      profile: ProfileMapper.toDomain(profileRow),
+      accountId: accountRow.id,
+      profileId: profileRow.id,
     };
   }
 }

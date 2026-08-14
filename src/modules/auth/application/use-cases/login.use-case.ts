@@ -1,20 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '../ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
-  PROFILE_REPOSITORY,
-  ProfileRepositoryPort,
-} from '../ports/profile.repository.port';
+  PROFILE_PROVIDER,
+  ProfileProviderPort,
+} from '../ports/profile-provider.port';
 import {
   REFRESH_TOKEN_REPOSITORY,
   RefreshTokenRepositoryPort,
 } from '../ports/refresh-token.repository.port';
-import {
-  PASSWORD_HASHER,
-  PasswordHasherPort,
-} from '../ports/password-hasher.port';
 import { TOKEN_SERVICE, TokenServicePort } from '../ports/token.service.port';
 import {
   Identifier,
@@ -35,14 +31,12 @@ export interface LoginInput {
 @Injectable()
 export class LoginUseCase {
   constructor(
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
-    @Inject(PROFILE_REPOSITORY)
-    private readonly profileRepository: ProfileRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
+    @Inject(PROFILE_PROVIDER)
+    private readonly profileProvider: ProfileProviderPort,
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: RefreshTokenRepositoryPort,
-    @Inject(PASSWORD_HASHER)
-    private readonly passwordHasher: PasswordHasherPort,
     @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenServicePort,
   ) {}
@@ -50,23 +44,16 @@ export class LoginUseCase {
   async execute(input: LoginInput): Promise<TokenPairResult> {
     const identifier = Identifier.create(input.loginType, input.identifier);
 
-    const account = await this.accountRepository.findByIdentifier(
+    const account = await this.accountProvider.authenticate(
       identifier.loginType,
       identifier.value,
-    );
-    if (!account || !account.isLoginAllowed()) {
-      throw new InvalidCredentialsError();
-    }
-
-    const isMatch = await this.passwordHasher.compare(
       input.password,
-      account.getPasswordHash(),
     );
-    if (!isMatch) {
+    if (!account) {
       throw new InvalidCredentialsError();
     }
 
-    const profile = await this.profileRepository.findSoleByAccountId(
+    const profile = await this.profileProvider.findActiveByAccountId(
       account.id,
     );
     if (!profile) throw new AccountNotFoundError();

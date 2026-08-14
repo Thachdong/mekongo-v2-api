@@ -3,9 +3,9 @@ import { ConfigType } from '@nestjs/config';
 import { randomInt } from 'crypto';
 import { otpConfig } from '@configs/otp.config';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '../ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   OTP_REQUEST_REPOSITORY,
   OtpRequestRepositoryPort,
@@ -41,8 +41,8 @@ export interface RequestOtpResult {
 @Injectable()
 export class RequestOtpUseCase {
   constructor(
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     @Inject(OTP_REQUEST_REPOSITORY)
     private readonly otpRequestRepository: OtpRequestRepositoryPort,
     @Inject(PASSWORD_HASHER)
@@ -114,7 +114,7 @@ export class RequestOtpUseCase {
     identifier: string;
   }> {
     if (input.accountId) {
-      const account = await this.accountRepository.findById(input.accountId);
+      const account = await this.accountProvider.findById(input.accountId);
       if (!account) throw new AccountNotFoundError();
 
       const loginType: TLoginType = account.phone ? 'phone' : 'email';
@@ -125,7 +125,7 @@ export class RequestOtpUseCase {
     if (input.identifier) {
       const loginType: TLoginType =
         input.loginType ?? (input.identifier.includes('@') ? 'email' : 'phone');
-      const account = await this.accountRepository.findByIdentifier(
+      const account = await this.accountProvider.findByIdentifier(
         loginType,
         input.identifier,
       );

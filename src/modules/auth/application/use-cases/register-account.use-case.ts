@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ACCOUNT_REPOSITORY,
-  AccountRepositoryPort,
-} from '../ports/account.repository.port';
+  ACCOUNT_PROVIDER,
+  AccountProviderPort,
+} from '../ports/account-provider.port';
 import {
   PASSWORD_HASHER,
   PasswordHasherPort,
@@ -17,7 +17,7 @@ import {
   TLoginType,
 } from '../../domain/value-objects/identifier.vo';
 import { Password } from '../../domain/value-objects/password.vo';
-import { TProfileType } from '../../domain/profile.entity';
+import { TProfileType } from '@modules/profile/public-api';
 import { IdentifierTakenError } from '../../domain/errors/auth-domain.errors';
 import { RequestOtpUseCase } from './request-otp.use-case';
 
@@ -38,8 +38,8 @@ export interface RegisterAccountResult {
 @Injectable()
 export class RegisterAccountUseCase {
   constructor(
-    @Inject(ACCOUNT_REPOSITORY)
-    private readonly accountRepository: AccountRepositoryPort,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: AccountProviderPort,
     @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: PasswordHasherPort,
     @Inject(REGISTER_ACCOUNT_TRANSACTION)
@@ -51,17 +51,17 @@ export class RegisterAccountUseCase {
     const identifier = Identifier.create(input.loginType, input.identifier);
     const password = Password.create(input.password);
 
-    const existing = await this.accountRepository.findByIdentifier(
+    const exists = await this.accountProvider.existsByIdentifier(
       identifier.loginType,
       identifier.value,
     );
-    if (existing) {
+    if (exists) {
       throw new IdentifierTakenError();
     }
 
     const passwordHash = await this.passwordHasher.hash(password.value);
 
-    const { account, profile } = await this.registerTransaction.execute({
+    const { accountId, profileId } = await this.registerTransaction.execute({
       loginType: identifier.loginType,
       identifier: identifier.value,
       passwordHash,
@@ -71,9 +71,9 @@ export class RegisterAccountUseCase {
 
     const { otpRequestId } = await this.requestOtpUseCase.execute({
       purpose: 'REGISTER',
-      accountId: account.id,
+      accountId,
     });
 
-    return { accountId: account.id, profileId: profile.id, otpRequestId };
+    return { accountId, profileId, otpRequestId };
   }
 }

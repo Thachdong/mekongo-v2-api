@@ -1,0 +1,17 @@
+model Province {
+  codename String @id
+  name     String
+
+  wards Ward[]
+}
+
+model Ward {
+  id               String @id @default(uuid())
+  codename         String
+  name             String
+  provinceCodename String
+
+  province Province @relation(fields: [provinceCodename], references: [codename], onDelete: Cascade)
+
+  @@index([provinceCodename])
+}

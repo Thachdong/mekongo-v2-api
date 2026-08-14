@@ -2,21 +2,20 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 import { TOtpPurpose } from '../../../domain/otp-request.entity';
 
-export type OtpPurposeApi = 'register' | 'reset_password' | 'change_password';
+export type OtpPurposeApi = 'register' | 'reset_password';
 
 export const OTP_PURPOSE_MAP: Record<OtpPurposeApi, TOtpPurpose> = {
   register: 'REGISTER',
   reset_password: 'RESET_PASSWORD',
-  change_password: 'CHANGE_PASSWORD',
 };
 
 export class RequestOtpDto {
-  @ApiProperty({ enum: ['register', 'reset_password', 'change_password'] })
-  @IsEnum(['register', 'reset_password', 'change_password'])
+  @ApiProperty({ enum: ['register', 'reset_password'] })
+  @IsEnum(['register', 'reset_password'])
   purpose: OtpPurposeApi;
 
   @ApiPropertyOptional({
-    description: 'Required for reset_password / change_password purposes',
+    description: 'Required for reset_password purpose',
   })
   @IsOptional()
   @IsUUID()
