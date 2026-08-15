@@ -5,3 +5,4 @@ export * from './throttle.config';
 export * from './validation.schema';
 export * from './websocket.config';
 export * from './otp.config';
+export * from './firebase.config';

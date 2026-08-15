@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl, MinLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateAccountDto {
   @ApiPropertyOptional()
@@ -8,8 +8,12 @@ export class UpdateAccountDto {
   @MinLength(1)
   displayName?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'key trả về từ POST /uploads/sign-url sau khi đã PUT file lên',
+    example: 'tmp/accountId/uuid-avatar.png',
+  })
   @IsOptional()
-  @IsUrl()
-  avatarUrl?: string;
+  @IsString()
+  @IsNotEmpty()
+  avatarKey?: string;
 }

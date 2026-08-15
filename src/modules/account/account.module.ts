@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { UploadModule } from '@modules/upload/upload.module';
+
 import { ACCOUNT_REPOSITORY } from './application/ports/account.repository.port';
 import { PASSWORD_HASHER } from './application/ports/password-hasher.port';
 import { PrismaAccountRepository } from './infrastructure/persistence/prisma-account.repository';
@@ -18,6 +20,7 @@ import { AccountController } from './infrastructure/http/account.controller';
 import { AccountFacade } from './account.facade';
 
 @Module({
+  imports: [UploadModule],
   controllers: [AccountController],
   providers: [
     { provide: ACCOUNT_REPOSITORY, useClass: PrismaAccountRepository },
